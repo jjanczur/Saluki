@@ -1,0 +1,1 @@
+pandoc -s main.tex --bibliography=sample.bib --csl=ieee.csl -o main.md
