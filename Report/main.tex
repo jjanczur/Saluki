@@ -1,16 +1,13 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%2345678901234567890123456789012345678901234567890123456789012345678901234567890
-%        1         2         3         4         5         6         7         8
 
-\documentclass[letterpaper, 10 pt, conference]{ieeeconf}  % Comment this line out
-                                                          % if you need a4paper
-%\documentclass[a4paper, 10pt, conference]{ieeeconf}      % Use this line for a4
-                                                          % paper
+% if you need a4paper uncomment this line
+%\documentclass[a4paper, 12pt, conference]{ieeeconf}   
 
-\IEEEoverridecommandlockouts                              % This command is only
-                                                          % needed if you want to
-                                                          % use the \thanks command
-\overrideIEEEmargins
+\documentclass[a4paper, 12pt, journal, onecolumn]{IEEEtran}
+\usepackage{geometry}
+\newgeometry{tmargin=3cm, bmargin=3cm, lmargin=3.5cm, rmargin=3.5cm}
+
+\IEEEoverridecommandlockouts                       
+%\overrideIEEEmargins
 % See the \addtolength command later in the file to balance the column lengths
 % on the last page of the document
 
@@ -25,45 +22,45 @@
 %\usepackage{amssymb}  % assumes amsmath package installed
 
 \title{\LARGE \bf
-Report from the research of the article Saluki: Finding Taint-style Vulnerabilities with
-Static Property Checking
+Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
 }
+\author{Jacek Janczura \\ \small{404975, Software Engineering of Embedded Systems, Technische Universität Berlin, {\tt janczura.jacek@gmail.com}}}%
 
-%\author{ \parbox{3 in}{\centering Jacek Janczura*
-%         \thanks{*Use the $\backslash$thanks command to put information here}\\
-%         Faculty of Electrical Engineering, Mathematics and Computer Science\\
-%         University of Twente\\
-%         7500 AE Enschede, The Netherlands\\
-%         {\tt\small h.kwakernaak@autsubmit.com}}
-%         \hspace*{ 0.5 in}
-%         \parbox{3 in}{ \centering Pradeep Misra**
-%         \thanks{**The footnote marks may be inserted manually}\\
-%        Department of Electrical Engineering \\
-%         Wright State University\\
-%         Dayton, OH 45435, USA\\
-%         {\tt\small pmisra@cs.wright.edu}}
-%}
+\usepackage{graphicx} %package to manage images
+\graphicspath{ {images/} }
+%\usepackage{caption} % it throws the warning
+\usepackage[style=base]{caption}
+\usepackage{enumitem}
 
-\author{Jacek Janczura$^{1}$% <-this % stops a space
-\thanks{$^{1}$J. Janczura; Computer Science,
-        Technische Universität Berlin, Hardenbergstraße 19, 10623 Berlin
-        {\tt\small janczura.jacek@gmail.com}}%
-}
+\usepackage[]{siunitx}
+\usepackage{textcomp}
 
+\usepackage{listings}
+\usepackage{fancyhdr}
+\fancyhf{}
+\rhead{Jacek Janczura}
+\lhead{Report on Saluki: Finding Taint-style Vulnerabilities }
+\rfoot{Page \thepage}
+\setlength{\headheight}{14pt}
+
+
+\usepackage{xcolor}
+\DeclareCaptionFont{white}{\color{white}}
+\DeclareCaptionFormat{listing}{%
+  \parbox{\textwidth}{\colorbox{gray}{\parbox{\textwidth}{#1#2#3}}\vskip-4pt}}
+\captionsetup[lstlisting]{format=listing,labelfont=white,textfont=white}
+\lstset{frame=lrb,xleftmargin=\fboxsep,xrightmargin=-\fboxsep}
 
 \begin{document}
 
-
-
 \maketitle
-\thispagestyle{empty}
-\pagestyle{empty}
+\thispagestyle{fancy}
+\pagestyle{fancy}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-
-This report  
+\textbf{This report explains the architecture and Saluki's idea for checking taint-style (data dependent) security properties in a binary code. Saluki is a new tool which is capable of finding a large number of CWS\footnote{CWS- Common Weakness Enumeration - list of software weakness types \cite{a2}} vulnerabilities in real programs. Saluki uses a mixture of static and dynamic taint analysis to follow data dependent facts. Saluki is proved to be capable of finding vulnerabilities in COTS\footnote{ COTS - Commercial off-the-shelf -  products are packaged solutions which are then adapted to satisfy the needs of the purchasing organization \cite{a1}} including 0-days.}
 
 \end{abstract}
 
@@ -71,176 +68,208 @@ This report
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
 
-This template, modified in MS Word 2003 and saved as ÒWord 97-2003 \& 6.0/95 Ð RTFÓ for the PC, provides authors with most of the formatting specifications needed for preparing electronic versions of their papers. All standard paper components have been specified for three reasons: (1) ease of use when formatting individual papers, (2) automatic compliance to electronic requirements that facilitate the concurrent or later production of electronic products, and (3) conformity of style throughout a conference proceedings. Margins, column widths, line spacing, and type styles are built-in; examples of the type styles are provided throughout this document and are identified in italic type, within parentheses, following the example. Some components, such as multi-leveled equations, graphics, and tables are not prescribed, although the various table text styles are provided. The formatter will need to create these components, incorporating the applicable criteria that follow.
+Recently vendors continue to ship vulnerable programs. Unfortunately to protect their "know how" and intellectual property, source code is not shipped. That is a big issue because analysis of binaries is far more complicated. To protect the privacy and security of the users and to analyse/check the binaries shipped by the vendors, some new tools and techniques for finding vulnerabilities in COTS need to be introduced. \cite{saluki} 
 
-\section{PROCEDURE FOR PAPER SUBMISSION}
+\section{Theoretical introduction}
 
-\subsection{Selecting a Template (Heading 2)}
+To understand steps of execution and Saluki's internal architecture following introduction needs to be done.
 
-First, confirm that you have the correct template for your paper size. This template has been tailored for output on the US-letter paper size. Please do not use it for A4 paper since the margin requirements for A4 papers may be different from Letter paper size.
+\subsection{Control Flow Graph - CFG}
 
-\subsection{Maintaining the Integrity of the Specifications}
+Representation, using graph notation, of all paths that might be traversed through a program during its execution including all the jumps, all the reads from the registers is called Control Flow Graph (Fig. \ref{fig:CFG}). CFG shows all of the possible states of the program execution and the possible paths to achieve that state.
 
-The template is used to format your paper and style the text. All margins, column widths, line spaces, and text fonts are prescribed; please do not alter them. You may note peculiarities. For example, the head margin in this template measures proportionately more than is customary. This measurement and others are deliberate, using specifications that anticipate your paper as one part of the entire proceedings, and not as an independent document. Please do not revise any of the current designations
 
-\section{MATH}
+\begin{figure}[ht]
+    \centering
+    \captionsetup{justification=centering}
+    \includegraphics[width=0.25\textwidth]{CFG.png}
+    \caption{Sample Control Flow Graph \cite{a3} }
+    \label{fig:CFG}
+\end{figure}
 
-Before you begin to format your paper, first write and save the content as a separate text file. Keep your text and graphic files separate until after the text has been formatted and styled. Do not use hard tabs, and limit use of hard returns to only one return at the end of a paragraph. Do not add any kind of pagination anywhere in the paper. Do not number text heads-the template will do that for you.
 
-Finally, complete content and organizational editing before formatting. Please take note of the following items when proofreading spelling and grammar:
+\subsection{Approximation}
 
-\subsection{Abbreviations and Acronyms} Define abbreviations and acronyms the first time they are used in the text, even after they have been defined in the abstract. Abbreviations such as IEEE, SI, MKS, CGS, sc, dc, and rms do not have to be defined. Do not use abbreviations in the title or heads unless they are unavoidable.
+In Fig. \ref{fig:approximation} set of all possible states that can be achieved by the program during its execution is assigned with letter A. To cover that state all the possible inputs needs to be supplied to the program which will result in all of the possible states in the output. Unfortunately supplying all of the possible inputs is not possible which is the reason for using the approximation.
 
-\subsection{Units}
+\subsection{Under Approximation}
+
+Under approximation means that we supply only the part of the possible states during the execution of the program. In that case we can not cover all of the possible inputs but only the subset of it. It results in the subset of all the possible outputs. Under approximation in Fig. \ref{fig:approximation} is assigned with UA and is a subset of A. \cite{a4}
+
+\subsection{Over Approximation}
+
+Over approximation in case of achieving the CFG states, means that the set of the states in over approximation is bigger than the set of the all possible states that can be achieved by the program in CFB. Over approximation in Fig. \ref{fig:approximation} is assigned with OA and A is a subset of OA. \cite{a4}
+
+\begin{figure}[ht]
+    \centering
+    \captionsetup{justification=centering}
+    \includegraphics[width=0.8\textwidth]{approximation.png}
+    \caption{Visualisation of over and under approximation \cite{a3} }
+    \label{fig:approximation}
+\end{figure}
+
+\subsection{Mixed Approximation}
+
+Mixed approximation is a subset of the states that are reachable by the program and the states that are not possible to be reached in CFG.   
+
+\section{Taint-style Vulnerabilities}
+
+The term taint-style vulnerabilities has its roots in taint analysis, a technique for tracing the propagation of data through a program. One goal of taint analysis is to identify data flows from attacker-controlled sources to security-sensitive sinks that do not undergo sanitization.\cite{a5} \cite{a6}
+
+Taint analysis can be used for example to check if the data received to a socket by the function $receive()$ and saved in some buffer does not leak. It means that it is not sent away by the function $send()$.
+
+In an example shown in a Fig. \ref{fig:taint} functions and buffers that cannot be dependent one to another need to be specified. Data saved by $receive(*buf_a)$ can not be send away by $send(*buf_b)$. 
+\\
+
+Taint analysis is divided into three steps:\\
+\begin{itemize}
+\item \textbf{Seeding} - during seeding all the $receive()$ functions need to be find in the CFG. Than the memory cells where the received data is saved need to be tainted. Each tainted memory cell has its index number for tracing the leakage path and taint flag. Taint flag informs if that specify memorycell has been already tainted or not.\\
+\item \textbf{Propagation} - taint propagation resemble spreading of a virus. In propagation step all the paths in CFG from $receive(*buf_a)$ to $send(*buf_b)$are traversed and each memory cell is tainted.\\
+\item \textbf{Checking} - during checking each one of the memory cells in $buf_b$ is checked for the taint. Presence of the taint in $buf_b$ means that received data may be leaked away\\
+\end{itemize}
+
+\begin{figure}[ht]
+    \centering
+    \captionsetup{justification=centering}
+    \includegraphics[width=0.9\textwidth]{Taint.png}
+    \caption{Visualisation of taint analysis}
+    \label{fig:taint}
+\end{figure}
+
+\subsection{Dynamic taint-style analysis}
+
+Dynamic taint-style analysis is the analysis done during the run time. Program is run and a few possible inputs are supplied. After that, tainted data triggered by the program at the run time, is followed. Dynamic taint-style analysis is an example of under approximation because all of the states are reached during the runtime of the program - are part of CFG. \cite{a6}\cite{a7}
 
 \begin{itemize}
+\item Pros:	
 
-\item Use either SI (MKS) or CGS as primary units. (SI units are encouraged.) English units may be used as secondary units (in parentheses). An exception would be the use of English units as identifiers in trade, such as Ò3.5-inch disk driveÓ.
-\item Avoid combining SI and CGS units, such as current in amperes and magnetic field in oersteds. This often leads to confusion because equations do not balance dimensionally. If you must use mixed units, clearly state the units for each quantity that you use in an equation.
-\item Do not mix complete spellings and abbreviations of units: ÒWb/m2Ó or Òwebers per square meterÓ, not Òwebers/m2Ó.  Spell out units when they appear in text: Ò. . . a few henriesÓ, not Ò. . . a few HÓ.
-\item Use a zero before decimal points: Ò0.25Ó, not Ò.25Ó. Use Òcm3Ó, not ÒccÓ. (bullet list)
+\begin{itemize}
+\item It is fast	
+\item No false positive
+\end{itemize}
+
+\item Cons:
+
+\begin{itemize}
+\item Detect only bugs triggered by an executed path at the run time
+\item Always starts at the entry point
+\end{itemize}
 
 \end{itemize}
 
+\subsection{Static taint-style analysis}
 
-\subsection{Equations}
+Static taint-style analysis is an example of over approximation. Static analysis in contrary to the dynamic is not done during the run time. Due to the large number of an external unreachable by the program in the run time states in the static analysis we observe a large number o false positives. On the other hand all the states reachable by the program are the subset of the states reached by static analysis. It means that among many false positives, all of the possible bugs will be caught. \cite{a5}\cite{a6}
 
-The equations are an exception to the prescribed specifications of this template. You will need to determine whether or not your equation should be typed using either the Times New Roman or the Symbol font (please no other font). To create multileveled equations, it may be necessary to treat the equation as a graphic and insert it into the text after your paper is styled. Number equations consecutively. Equation numbers, within parentheses, are to position flush right, as in (1), using a right tab stop. To make your equations more compact, you may use the solidus ( / ), the exp function, or appropriate exponents. Italicize Roman symbols for quantities and variables, but not Greek symbols. Use a long dash rather than a hyphen for a minus sign. Punctuate equations with commas or periods when they are part of a sentence, as in
-
-$$
-\alpha + \beta = \chi \eqno{(1)}
-$$
-
-Note that the equation is centered using a center tab stop. Be sure that the symbols in your equation have been defined before or immediately following the equation. Use Ò(1)Ó, not ÒEq. (1)Ó or Òequation (1)Ó, except at the beginning of a sentence: ÒEquation (1) is . . .Ó
-
-\subsection{Some Common Mistakes}
 \begin{itemize}
+\item Pros:	
 
-
-\item The word ÒdataÓ is plural, not singular.
-\item The subscript for the permeability of vacuum ?0, and other common scientific constants, is zero with subscript formatting, not a lowercase letter ÒoÓ.
-\item In American English, commas, semi-/colons, periods, question and exclamation marks are located within quotation marks only when a complete thought or name is cited, such as a title or full quotation. When quotation marks are used, instead of a bold or italic typeface, to highlight a word or phrase, punctuation should appear outside of the quotation marks. A parenthetical phrase or statement at the end of a sentence is punctuated outside of the closing parenthesis (like this). (A parenthetical sentence is punctuated within the parentheses.)
-\item A graph within a graph is an ÒinsetÓ, not an ÒinsertÓ. The word alternatively is preferred to the word ÒalternatelyÓ (unless you really mean something that alternates).
-\item Do not use the word ÒessentiallyÓ to mean ÒapproximatelyÓ or ÒeffectivelyÓ.
-\item In your paper title, if the words Òthat usesÓ can accurately replace the word ÒusingÓ, capitalize the ÒuÓ; if not, keep using lower-cased.
-\item Be aware of the different meanings of the homophones ÒaffectÓ and ÒeffectÓ, ÒcomplementÓ and ÒcomplimentÓ, ÒdiscreetÓ and ÒdiscreteÓ, ÒprincipalÓ and ÒprincipleÓ.
-\item Do not confuse ÒimplyÓ and ÒinferÓ.
-\item The prefix ÒnonÓ is not a word; it should be joined to the word it modifies, usually without a hyphen.
-\item There is no period after the ÒetÓ in the Latin abbreviation Òet al.Ó.
-\item The abbreviation Òi.e.Ó means Òthat isÓ, and the abbreviation Òe.g.Ó means Òfor exampleÓ.
+\begin{itemize}
+\item Detects all of the bugs
 
 \end{itemize}
 
+\item Cons:
 
-\section{USING THE TEMPLATE}
+\begin{itemize}
+\item Many false positives
 
-Use this sample document as your LaTeX source file to create your document. Save this file as {\bf root.tex}. You have to make sure to use the cls file that came with this distribution. If you use a different style file, you cannot expect to get required margins. Note also that when you are creating your out PDF file, the source file is only part of the equation. {\it Your \TeX\ $\rightarrow$ PDF filter determines the output file size. Even if you make all the specifications to output a letter file in the source - if you filter is set to produce A4, you will only get A4 output. }
+\item Takes a long time
+\end{itemize}
 
-It is impossible to account for all possible situation, one would encounter using \TeX. If you are using multiple \TeX\ files you must make sure that the ``MAIN`` source file is called root.tex - this is particularly important if your conference is using PaperPlaza's built in \TeX\ to PDF conversion tool.
+\end{itemize}
 
-\subsection{Headings, etc}
+\section{Saluki Architecture}
 
-Text heads organize the topics on a relational, hierarchical basis. For example, the paper title is the primary text head because all subsequent material relates and elaborates on this one topic. If there are two or more sub-topics, the next level head (uppercase Roman numerals) should be used and, conversely, if there are not at least two sub-topics, then no subheads should be introduced. Styles named ÒHeading 1Ó, ÒHeading 2Ó, ÒHeading 3Ó, and ÒHeading 4Ó are prescribed.
+In contrary to a static and a dynamic taint-analysis Saluki creators came up with a new and novel approach. Instead of under approximating the states in a run time or statically slowly over approximating all the possible and and impossible states, in case of Saluki random parts of code are executed. 
 
-\subsection{Figures and Tables}
+In a seeding part all instructions and policies that a user wants to check are being found in a control flow graph and tainted. Than in a propagation part, plugin called $\mu$flux executes random parts of the CFG supplying the random input and goes down the graph. 
 
-Positioning Figures and Tables: Place figures and tables at the top and bottom of columns. Avoid placing them in the middle of columns. Large figures and tables may span across both columns. Figure captions should be below the figures; table heads should appear above the tables. Insert figures and tables after they are cited in the text. Use the abbreviation ÒFig. 1Ó, even at the beginning of a sentence.
+Saluki does not need to start every time from the beginning. Additionally randomisation of an execution point, lets Saluki go deeper into the CFG than during a normal dynamic analysis. On the other hand randomisation of the input makes Saluki to achieve a normally unreachable states like in over approximation. That is why the states approximation of Saluki is the mixed one.
+\\
 
-\begin{table}[h]
-\caption{An Example of a Table}
-\label{table_example}
-\begin{center}
-\begin{tabular}{|c||c|}
-\hline
-One & Two\\
-\hline
-Three & Four\\
-\hline
-\end{tabular}
-\end{center}
-\end{table}
+Saluki's execution can be divided into five steps.
+Its overall architecture is shown in a Fig. \ref{fig:saluki}.  \cite{saluki} :
 
+\begin{enumerate}[label=\Alph*]
+\item Load in the specification.
+\item Parse the binary into an intermediate representation (IR\footnote{Creating IR can be simplified for better understanding to creating a control flow graph of whole binary}) suitable for analysis. 
+\item Run $\mu$flux\footnote{$\mu$flux works as a taint propagation} to collect data flow facts about executions from every specified source.
+\item Run a solver over the policies, program, and collected facts. The solver determines whether the property holds or not.
+\item Saluki outputs example paths where the property does not hold. The actual output is not a full path, but instead a condensed form of the tainted instructions and a flow ID.
+\end{enumerate}
 
-   \begin{figure}[thpb]
-      \centering
-      \framebox{\parbox{3in}{We suggest that you use a text box to insert a graphic (which is ideally a 300 dpi TIFF or EPS file, with all fonts embedded) because, in an document, this method is somewhat more stable than directly inserting a picture.
-}}
-      %\includegraphics[scale=1.0]{figurefile}
-      \caption{Inductance of oscillation winding on amorphous
-       magnetic core versus DC bias magnetic field}
-      \label{figurelabel}
-   \end{figure}
-   
+\begin{figure}[ht]
+    \centering
+    \captionsetup{justification=centering}
+    \includegraphics[width=0.85\textwidth]{saluki.png}
+    \caption{Saluki Architecture \cite{saluki}}
+    \label{fig:saluki}
+\end{figure}
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words rather than symbols or abbreviations when writing Figure axis labels to avoid confusing the reader. As an example, write the quantity ÒMagnetizationÓ, or ÒMagnetization, MÓ, not just ÒMÓ. If including units in the label, present them within parentheses. Do not label axes only with units. In the example, write ÒMagnetization (A/m)Ó or ÒMagnetization {A[m(1)]}Ó, not just ÒA/mÓ. Do not label axes with a ratio of quantities and units. For example, write ÒTemperature (K)Ó, not ÒTemperature/K.Ó
+\textit{Specification: } The first step of running the Saluki is loading the vulnerabilities specification. Saluki has already implemented a database - CWE\footnote{CWE - community-developed list of common software security weaknesses} with dozens of vulnerabilities. Additionally user can load customised, user-defined policies using the Saluki's language.\\
 
-\section{CONCLUSIONS}
+%\belowcaptionskip=-10pt
 
-A conclusion section is not required. Although a conclusion may review the main points of the paper, do not replicate the abstract as the conclusion. A conclusion might elaborate on the importance of the work or suggest applications and extensions. 
+\begin{lstlisting}[label=saluki-code,caption=Command injection example]
+    prop recv_to_system ::=
+    recv(_,*buf,_,_), system(*cmd) |- never
+    s.t. cmd/buf
+\end{lstlisting}
 
-\addtolength{\textheight}{-12cm}   % This command serves to balance the column lengths
-                                  % on the last page of the document manually. It shortens
-                                  % the textheight of the last page by a suitable amount.
-                                  % This command does not take effect until the next page
-                                  % so it should come on the page before the last. Make
-                                  % sure that you do not shorten the textheight too much.
+In the Listing 1, there is shown a policy in Saluki language for finding a command injection. 
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Command injection vulnerabilities arise when input flows from an input source to a sink function that executes code. 
 
+In this case system should never use data from recv (data received from the socket). Otherwise we can assume that a command in a system shell was executed - system used data from the socket. 
 
+The only limitation is that Saluki does not specifically reason about memory corruption vulnerabilities such as buffer overflows.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bigskip
 
+\textit{Binary processing:} The binary is loaded to the Saluki. Than Saluki runs a BAP\footnote{BAP - BinaryAnalysisPlatform - https://github.com/BinaryAnalysisPlatform/} (BinaryAnalysisPlatform) an open-source plugin-based binary analysis framework. BAP converts binary code into control flow graph - intermediate representation.\cite{a8} 
+\bigskip
 
+\textit{Taint Seeding:} Saluki analyzes the specification for variables used in constraints. Each constraint variable is linked to
+a program location, which is then marked in the IR as a taint
+seed. In our running example, cmd is a constraint variable used
+in recv, causing Saluki to identify the proper memory location
+corresponding to the cmd argument in all terms named recv.
+As is customary, Saluki uses unique identifiers to identify each
+taint seed.\cite{saluki}
+\bigskip
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section*{APPENDIX}
+\textit{$\mu$flux:} $\mu$flux is implemented as a custom interpreter that runs random parts of CFG and propagates the taint across the memory. $\mu$flux start taint propagation from the instructions picked from specification and marked during the seeding. Than it executes parts of CFG randomly. $\mu$flux explore the paths regardless of the branch predicate and ignore context of data.
+\medskip
 
-Appendixes should appear before the acknowledgment.
+$\mu$flux stops execution when:
+\begin{itemize}
+\item Pre-defined max. instructions number was excited
+\item Saluki call dynamically linked external function
+\item Saluki hits a jump with an indirect target
+\end{itemize}
 
-\section*{ACKNOWLEDGMENT}
-
-The preferred spelling of the word ÒacknowledgmentÓ in America is without an ÒeÓ after the ÒgÓ. Avoid the stilted expression, ÒOne of us (R. B. G.) thanks . . .Ó  Instead, try ÒR. B. G. thanksÓ. Put sponsor acknowledgments in the unnumbered footnote on the first page.
-
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-References are important to the reader; therefore, each citation must be complete and correct. If at all possible, references should be commonly available publications.
-
-
-
-\begin{thebibliography}{99}
-
-\bibitem{c1} G. O. Young, ÒSynthetic structure of industrial plastics (Book style with paper title and editor),Ó 	in Plastics, 2nd ed. vol. 3, J. Peters, Ed.  New York: McGraw-Hill, 1964, pp. 15Ð64.
-\bibitem{c2} W.-K. Chen, Linear Networks and Systems (Book style).	Belmont, CA: Wadsworth, 1993, pp. 123Ð135.
-\bibitem{c3} H. Poor, An Introduction to Signal Detection and Estimation.   New York: Springer-Verlag, 1985, ch. 4.
-\bibitem{c4} B. Smith, ÒAn approach to graphs of linear forms (Unpublished work style),Ó unpublished.
-\bibitem{c5} E. H. Miller, ÒA note on reflector arrays (Periodical styleÑAccepted for publication),Ó IEEE Trans. Antennas Propagat., to be publised.
-\bibitem{c6} J. Wang, ÒFundamentals of erbium-doped fiber amplifiers arrays (Periodical styleÑSubmitted for publication),Ó IEEE J. Quantum Electron., submitted for publication.
-\bibitem{c7} C. J. Kaufman, Rocky Mountain Research Lab., Boulder, CO, private communication, May 1995.
-\bibitem{c8} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ÒElectron spectroscopy studies on magneto-optical media and plastic substrate interfaces(Translation Journals style),Ó IEEE Transl. J. Magn.Jpn., vol. 2, Aug. 1987, pp. 740Ð741 [Dig. 9th Annu. Conf. Magnetics Japan, 1982, p. 301].
-\bibitem{c9} M. Young, The Techincal Writers Handbook.  Mill Valley, CA: University Science, 1989.
-\bibitem{c10} J. U. Duncombe, ÒInfrared navigationÑPart I: An assessment of feasibility (Periodical style),Ó IEEE Trans. Electron Devices, vol. ED-11, pp. 34Ð39, Jan. 1959.
-\bibitem{c11} S. Chen, B. Mulgrew, and P. M. Grant, ÒA clustering technique for digital communications channel equalization using radial basis function networks,Ó IEEE Trans. Neural Networks, vol. 4, pp. 570Ð578, July 1993.
-\bibitem{c12} R. W. Lucky, ÒAutomatic equalization for digital communication,Ó Bell Syst. Tech. J., vol. 44, no. 4, pp. 547Ð588, Apr. 1965.
-\bibitem{c13} S. P. Bingulac, ÒOn the compatibility of adaptive controllers (Published Conference Proceedings style),Ó in Proc. 4th Annu. Allerton Conf. Circuits and Systems Theory, New York, 1994, pp. 8Ð16.
-\bibitem{c14} G. R. Faulhaber, ÒDesign of service systems with priority reservation,Ó in Conf. Rec. 1995 IEEE Int. Conf. Communications, pp. 3Ð8.
-\bibitem{c15} W. D. Doyle, ÒMagnetization reversal in films with biaxial anisotropy,Ó in 1987 Proc. INTERMAG Conf., pp. 2.2-1Ð2.2-6.
-\bibitem{c16} G. W. Juette and L. E. Zeffanella, ÒRadio noise currents n short sections on bundle conductors (Presented Conference Paper style),Ó presented at the IEEE Summer power Meeting, Dallas, TX, June 22Ð27, 1990, Paper 90 SM 690-0 PWRS.
-\bibitem{c17} J. G. Kreifeldt, ÒAn analysis of surface-detected EMG as an amplitude-modulated noise,Ó presented at the 1989 Int. Conf. Medicine and Biological Engineering, Chicago, IL.
-\bibitem{c18} J. Williams, ÒNarrow-band analyzer (Thesis or Dissertation style),Ó Ph.D. dissertation, Dept. Elect. Eng., Harvard Univ., Cambridge, MA, 1993. 
-\bibitem{c19} N. Kawasaki, ÒParametric study of thermal and chemical nonequilibrium nozzle flow,Ó M.S. thesis, Dept. Electron. Eng., Osaka Univ., Osaka, Japan, 1993.
-\bibitem{c20} J. P. Wilkinson, ÒNonlinear resonant circuit devices (Patent style),Ó U.S. Patent 3 624 12, July 16, 1990. 
+\bigskip
+\textit{The Saluki Solver:} In this step Saluki starts to follow the taint and tries to prove all properties specified in a policy. Saluki is constructive: it does not just say there is a violation, but gives the specific path and data dependencies used to show the property can be violated 
 
 
 
+\section{Results and tests}
+
+Saluki research group tested Saluki on many binaries and try to check it performance. They found two binaries where srand seed was time dependent, 6 new zero-days bugs in 5 COTS products, what is more they have found using Saluki Heartbleed in OpenSSL. Unfortunately in the same library Saluki showed 4 false positive alerts.
+In Lighthttp Saluki research tteam found sommand injection to system, buffer overflow due to wrong usage of strcpy. Apart from OpenSSL and Lighthttp they found 3 SQL injections in some COTOS products and many more.
 
 
-
-\end{thebibliography}
-
+This experiments shows that Saluki may be useful but user needs to be aware that a false-positives may occur and check every alert. 
 
 
+\section{Conclusions}
+
+Saluki is not sound nor complete. The main advantage of it is that in comparison to other tools used to find vulnerabilities it’s fast. Unfortunately the authors of Saluki did not benchmark it against other tools which I think is a big drawback of the paper.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{unsrt}
+\bibliography{sample}
 
 \end{document}
