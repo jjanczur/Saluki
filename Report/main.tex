@@ -4,7 +4,7 @@
 
 \documentclass[a4paper, 12pt, journal, onecolumn]{IEEEtran}
 \usepackage{geometry}
-\newgeometry{tmargin=3cm, bmargin=3cm, lmargin=3.5cm, rmargin=3.5cm}
+\newgeometry{tmargin=3cm, bmargin=3cm, lmargin=3cm, rmargin=3cm}
 
 \IEEEoverridecommandlockouts                       
 %\overrideIEEEmargins
@@ -24,7 +24,7 @@
 \title{\LARGE \bf
 Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
 }
-\author{Jacek Janczura \\ \small{404975, Software Engineering of Embedded Systems, Technische Universität Berlin, {\tt janczura.jacek@gmail.com}}}%
+\author{Jacek Janczura \\ \small{404975, Software Engineering of Embedded Systems, Technische Universitaet Berlin, {\tt janczura.jacek@gmail.com}}}%
 
 \usepackage{graphicx} %package to manage images
 \graphicspath{ {images/} }
@@ -72,7 +72,7 @@ Recently vendors continue to ship vulnerable programs. Unfortunately to protect 
 
 \section{Theoretical introduction}
 
-To understand steps of execution and Saluki's internal architecture following introduction needs to be done.
+To understand steps of execution and Saluki's internal architecture the following introduction needs to be done.
 
 \subsection{Control Flow Graph - CFG}
 
@@ -90,11 +90,11 @@ Representation, using graph notation, of all paths that might be traversed throu
 
 \subsection{Approximation}
 
-In Fig. \ref{fig:approximation} set of all possible states that can be achieved by the program during its execution is assigned with letter A. To cover that state all the possible inputs needs to be supplied to the program which will result in all of the possible states in the output. Unfortunately supplying all of the possible inputs is not possible which is the reason for using the approximation.
+Approximation stands for anything that is similar but not exactly equal to something else. In Fig. \ref{fig:approximation} a set of all possible states that can be achieved by the program during its execution is assigned with a letter A. To cover that set all the possible inputs needs to be supplied to the program, which will result in all of the possible states in the output. In other words, if all the possible inputs were supplied to the program, all the states from CFG will be reached. Unfortunately it is not possible to supply all of the potential inputs which is the reason for using the approximation. 
 
 \subsection{Under Approximation}
 
-Under approximation means that we supply only the part of the possible states during the execution of the program. In that case we can not cover all of the possible inputs but only the subset of it. It results in the subset of all the possible outputs. Under approximation in Fig. \ref{fig:approximation} is assigned with UA and is a subset of A. \cite{a4}
+Under approximation means that only the part of the possible states during the execution of the program are supplied. In that case it is not possible to cover all of the inputs but only the subset of them. The result of it is the subset of all the possible outputs. Under approximation in Fig. \ref{fig:approximation} is assigned with UA and is a subset of A. \cite{a4}
 
 \subsection{Over Approximation}
 
@@ -114,18 +114,18 @@ Mixed approximation is a subset of the states that are reachable by the program 
 
 \section{Taint-style Vulnerabilities}
 
-The term taint-style vulnerabilities has its roots in taint analysis, a technique for tracing the propagation of data through a program. One goal of taint analysis is to identify data flows from attacker-controlled sources to security-sensitive sinks that do not undergo sanitization.\cite{a5} \cite{a6}
+The term taint-style vulnerabilities has its roots in taint analysis, a technique for tracing  propagation of data through a program. One goal of taint analysis is to identify data flows from attacker-controlled sources to security-sensitive sinks that do not undergo sanitization.\cite{a5} \cite{a6}
 
 Taint analysis can be used for example to check if the data received to a socket by the function $receive()$ and saved in some buffer does not leak. It means that it is not sent away by the function $send()$.
 
-In an example shown in a Fig. \ref{fig:taint} functions and buffers that cannot be dependent one to another need to be specified. Data saved by $receive(*buf_a)$ can not be send away by $send(*buf_b)$. 
+In an example shown in a Fig. \ref{fig:taint}, functions and buffers that cannot be dependent one to another need to be specified. Any data saved by $receive(*buf_a)$ can not be sent away by $send(*buf_b)$. 
 \\
 
 Taint analysis is divided into three steps:\\
 \begin{itemize}
-\item \textbf{Seeding} - during seeding all the $receive()$ functions need to be find in the CFG. Than the memory cells where the received data is saved need to be tainted. Each tainted memory cell has its index number for tracing the leakage path and taint flag. Taint flag informs if that specify memorycell has been already tainted or not.\\
-\item \textbf{Propagation} - taint propagation resemble spreading of a virus. In propagation step all the paths in CFG from $receive(*buf_a)$ to $send(*buf_b)$are traversed and each memory cell is tainted.\\
-\item \textbf{Checking} - during checking each one of the memory cells in $buf_b$ is checked for the taint. Presence of the taint in $buf_b$ means that received data may be leaked away\\
+\item \textbf{Seeding} - during seeding all the $receive()$ functions need to be find in the CFG. Than the memory cells, where the received data is saved, need to be tainted. Each tainted memory cell has its index number for tracing the leakage path and taint flag. Taint flag informs if that specific memory cell has been already tainted or not.\\
+\item \textbf{Propagation} - taint propagation resembles spreading of a virus. In propagation step all the paths in CFG from $receive(*buf_a)$ to $send(*buf_b)$are traversed and each memory cell is tainted.\\
+\item \textbf{Checking} - during checking each one of the memory cells in $buf_b$ is examined for the taint. Presence of the taint in $buf_b$ means that received data may be leaked away.\\
 \end{itemize}
 
 \begin{figure}[ht]
@@ -138,7 +138,7 @@ Taint analysis is divided into three steps:\\
 
 \subsection{Dynamic taint-style analysis}
 
-Dynamic taint-style analysis is the analysis done during the run time. Program is run and a few possible inputs are supplied. After that, tainted data triggered by the program at the run time, is followed. Dynamic taint-style analysis is an example of under approximation because all of the states are reached during the runtime of the program - are part of CFG. \cite{a6}\cite{a7}
+Dynamic taint-style analysis is the analysis done during the run time. Program is run and a few possible inputs are supplied, every time a binary needs to be rerun (always starts at the beginning of CFG). After that, tainted data triggered by the program at the run time, is followed. Dynamic taint-style analysis is an example of under approximation, because all of the states are reached during the run time of the program - are part of CFG. \cite{a6}\cite{a7}
 
 \begin{itemize}
 \item Pros:	
@@ -151,7 +151,7 @@ Dynamic taint-style analysis is the analysis done during the run time. Program i
 \item Cons:
 
 \begin{itemize}
-\item Detect only bugs triggered by an executed path at the run time
+\item Detects only bugs triggered by an executed path at the run time
 \item Always starts at the entry point
 \end{itemize}
 
@@ -159,13 +159,13 @@ Dynamic taint-style analysis is the analysis done during the run time. Program i
 
 \subsection{Static taint-style analysis}
 
-Static taint-style analysis is an example of over approximation. Static analysis in contrary to the dynamic is not done during the run time. Due to the large number of an external unreachable by the program in the run time states in the static analysis we observe a large number o false positives. On the other hand all the states reachable by the program are the subset of the states reached by static analysis. It means that among many false positives, all of the possible bugs will be caught. \cite{a5}\cite{a6}
+Static taint-style analysis is an example of over approximation. Static analysis in contrary to the dynamic one is not done during the run time. Due to the large number of an external unreachable by the program in the run time states in the static analysis we observe a large number of false positives. On the other hand all the states reachable by the program are the subset of the states reached by static analysis. It means that among many false positives, all of the possible bugs will be caught. \cite{a5}\cite{a6}
 
 \begin{itemize}
 \item Pros:	
 
 \begin{itemize}
-\item Detects all of the bugs
+\item Detects all the bugs
 
 \end{itemize}
 
@@ -181,11 +181,11 @@ Static taint-style analysis is an example of over approximation. Static analysis
 
 \section{Saluki Architecture}
 
-In contrary to a static and a dynamic taint-analysis Saluki creators came up with a new and novel approach. Instead of under approximating the states in a run time or statically slowly over approximating all the possible and and impossible states, in case of Saluki random parts of code are executed. 
+In contrary to a static and a dynamic taint-analysis Saluki creators came up with a new and novel approach. Instead of under approximating the states in a run time or statically slowly over approximating all the possible inputs and impossible states, in case of Saluki - random parts of code are executed. 
 
-In a seeding part all instructions and policies that a user wants to check are being found in a control flow graph and tainted. Than in a propagation part, plugin called $\mu$flux executes random parts of the CFG supplying the random input and goes down the graph. 
+In a seeding part all instructions and policies that a user wants to check are being found in a control flow graph and tainted. Then in a propagation part, plugin called $\mu$flux executes random parts of the CFG supplying the random input and goes down the graph. 
 
-Saluki does not need to start every time from the beginning. Additionally randomisation of an execution point, lets Saluki go deeper into the CFG than during a normal dynamic analysis. On the other hand randomisation of the input makes Saluki to achieve a normally unreachable states like in over approximation. That is why the states approximation of Saluki is the mixed one.
+Saluki does not need to start every time from the beginning. Additionally randomisation of an execution point, lets Saluki go deeper into the CFG than during a normal dynamic analysis. On the other hand randomisation of the input makes Saluki achieve a normally unreachable states like in over approximation. That is why the states approximation of Saluki is the mixed one.
 \\
 
 Saluki's execution can be divided into five steps.
@@ -193,7 +193,7 @@ Its overall architecture is shown in a Fig. \ref{fig:saluki}.  \cite{saluki} :
 
 \begin{enumerate}[label=\Alph*]
 \item Load in the specification.
-\item Parse the binary into an intermediate representation (IR\footnote{Creating IR can be simplified for better understanding to creating a control flow graph of whole binary}) suitable for analysis. 
+\item Parse the binary into an intermediate representation (IR\footnote{IR can be simplified for better understanding as creating a control flow graph of whole binary}) suitable for analysis. 
 \item Run $\mu$flux\footnote{$\mu$flux works as a taint propagation} to collect data flow facts about executions from every specified source.
 \item Run a solver over the policies, program, and collected facts. The solver determines whether the property holds or not.
 \item Saluki outputs example paths where the property does not hold. The actual output is not a full path, but instead a condensed form of the tainted instructions and a flow ID.
@@ -207,7 +207,7 @@ Its overall architecture is shown in a Fig. \ref{fig:saluki}.  \cite{saluki} :
     \label{fig:saluki}
 \end{figure}
 
-\textit{Specification: } The first step of running the Saluki is loading the vulnerabilities specification. Saluki has already implemented a database - CWE\footnote{CWE - community-developed list of common software security weaknesses} with dozens of vulnerabilities. Additionally user can load customised, user-defined policies using the Saluki's language.\\
+\textit{Specification: } The first step of running Saluki is loading the vulnerabilities specification. Saluki has already implemented a database - CWE\footnote{CWE - community-developed list of common software security weaknesses} with dozens of vulnerabilities. Additionally user can load customised, user-defined policies using the Saluki's language.\\
 
 %\belowcaptionskip=-10pt
 
@@ -224,11 +224,10 @@ Command injection vulnerabilities arise when input flows from an input source to
 In this case system should never use data from recv (data received from the socket). Otherwise we can assume that a command in a system shell was executed - system used data from the socket. 
 
 The only limitation is that Saluki does not specifically reason about memory corruption vulnerabilities such as buffer overflows.
-
 \bigskip
 
 \textit{Binary processing:} The binary is loaded to the Saluki. Than Saluki runs a BAP\footnote{BAP - BinaryAnalysisPlatform - https://github.com/BinaryAnalysisPlatform/} (BinaryAnalysisPlatform) an open-source plugin-based binary analysis framework. BAP converts binary code into control flow graph - intermediate representation.\cite{a8} 
-\bigskip
+\\
 
 \textit{Taint Seeding:} Saluki analyzes the specification for variables used in constraints. Each constraint variable is linked to
 a program location, which is then marked in the IR as a taint
@@ -239,33 +238,33 @@ As is customary, Saluki uses unique identifiers to identify each
 taint seed.\cite{saluki}
 \bigskip
 
-\textit{$\mu$flux:} $\mu$flux is implemented as a custom interpreter that runs random parts of CFG and propagates the taint across the memory. $\mu$flux start taint propagation from the instructions picked from specification and marked during the seeding. Than it executes parts of CFG randomly. $\mu$flux explore the paths regardless of the branch predicate and ignore context of data.
+\textit{$\mu$flux:} $\mu$flux is implemented as a custom interpreter that runs random parts of CFG and propagates the taint across the memory. $\mu$flux starts taint propagation from the instructions picked from specification and marked during the seeding. Than it executes parts of CFG randomly. $\mu$flux explores the paths regardless of the branch predicate and ignores context of data.
 \medskip
 
 $\mu$flux stops execution when:
 \begin{itemize}
 \item Pre-defined max. instructions number was excited
-\item Saluki call dynamically linked external function
+\item Saluki calls dynamically linked external function
 \item Saluki hits a jump with an indirect target
 \end{itemize}
 
 \bigskip
-\textit{The Saluki Solver:} In this step Saluki starts to follow the taint and tries to prove all properties specified in a policy. Saluki is constructive: it does not just say there is a violation, but gives the specific path and data dependencies used to show the property can be violated 
+\textit{The Saluki Solver:} In this step Saluki starts to follow the taint and tries to prove all properties specified in a policy. Saluki is constructive: it does not just show that there is a violation, but gives the specific path and data dependencies used to show the property can be violated.
 
 
 
 \section{Results and tests}
 
-Saluki research group tested Saluki on many binaries and try to check it performance. They found two binaries where srand seed was time dependent, 6 new zero-days bugs in 5 COTS products, what is more they have found using Saluki Heartbleed in OpenSSL. Unfortunately in the same library Saluki showed 4 false positive alerts.
-In Lighthttp Saluki research tteam found sommand injection to system, buffer overflow due to wrong usage of strcpy. Apart from OpenSSL and Lighthttp they found 3 SQL injections in some COTOS products and many more.
+Saluki research group tested Saluki on many binaries in order to check its performance. No only did they find two binaries where srand seed was time dependent and 6 new zero-days bugs in 5 COTS products, but they even discovered Heartbleed in OpenSSL. Unfortunately in the same library Saluki showed 4 false positive alerts.
+In Lighthttp Saluki research team found command injection to system, buffer overflow due to wrong usage of strcpy. Apart from OpenSSL and Lighthttp they found 3 SQL injections in some COTOS products and many more.
 
 
-This experiments shows that Saluki may be useful but user needs to be aware that a false-positives may occur and check every alert. 
+This experiments shows that Saluki may be useful but the user needs to be aware that a false-positives may occur and that is why it is crucial to check every alert. 
 
 
 \section{Conclusions}
 
-Saluki is not sound nor complete. The main advantage of it is that in comparison to other tools used to find vulnerabilities it’s fast. Unfortunately the authors of Saluki did not benchmark it against other tools which I think is a big drawback of the paper.
+Saluki is not sound nor complete. Its main advantage is that in comparison to other tools used to find vulnerabilities it is extremely fast. Unfortunately the authors of Saluki did not benchmark it against other tools which I think is a big drawback of the paper.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
