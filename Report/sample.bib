@@ -83,3 +83,101 @@ volume = {6806},
 journal = {LNCS},
 doi = {10.1007/978-3-642-22110-1_37}
 }
+
+@inproceedings{binaries,
+ author = {Meng, Xiaozhu and Miller, Barton P.},
+ title = {Binary Code is Not Easy},
+ booktitle = {Proceedings of the 25th International Symposium on Software Testing and Analysis},
+ series = {ISSTA 2016},
+ year = {2016},
+ isbn = {978-1-4503-4390-9},
+ location = {Saarbr\&\#252;cken, Germany},
+ pages = {24--35},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2931037.2931047},
+ doi = {10.1145/2931037.2931047},
+ acmid = {2931047},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {Challenging code constructs, Jump table model, Static binary code analysis},
+} 
+@INPROCEEDINGS{CFG, 
+author={A. R. Bernat and B. P. Miller}, 
+booktitle={2012 19th Working Conference on Reverse Engineering}, 
+title={Structured Binary Editing with a CFG Transformation Algebra}, 
+year={2012}, 
+volume={}, 
+number={}, 
+pages={9-18}, 
+keywords={algebra;graph theory;program debugging;structured binary editing;CFG transformation algebra;control flow graph;binary modification;source code;debugging information;symbol information;binary high-level abstraction;instruction set;program behavior;CFG validity constraint;Dyninst binary analysis;instrumentation framework;hot patching tool;Apache HTTPD server;server execution;Algebra;Instruments;Cloning;Runtime;Binary codes;Debugging;Libraries;binary modification;binary editing;graph transformations;binary validity}, 
+doi={10.1109/WCRE.2012.11}, 
+ISSN={2375-5369}, 
+month={Oct},}
+
+@INPROCEEDINGS{CFG2, 
+author={P. P. F. Chan and C. Collberg}, 
+booktitle={2014 14th International Conference on Quality Software}, 
+title={A Method to Evaluate CFG Comparison Algorithms}, 
+year={2014}, 
+volume={}, 
+number={}, 
+pages={95-104}, 
+keywords={flow graphs;invasive software;program debugging;CFG comparison algorithm;control-flow graph;CFG similarity algorithm;malware detection;software plagiarism detection;Algorithm design and analysis;Approximation algorithms;Software algorithms;Malware;Accuracy;Software;Benchmark testing}, 
+doi={10.1109/QSIC.2014.28}, 
+ISSN={1550-6002}, 
+month={Oct},}
+
+@article{Pietraszek2006,
+abstract = {Injection vulnerabilities pose a major threat to application-level security. Some of the more common types are SQL injection, cross-site scripting and shell injection vulnerabilities. Existing methods for defending against injection attacks, that is, attacks exploiting these vulnerabilities, rely heavily on the application developers and are therefore error-prone. In this paper we introduce CSSE, a method to detect and prevent injection attacks. CSSE works by addressing the root cause why such attacks can succeed, namely the ad-hoc serialization of user-provided input. It provides a platform-enforced separation of channels, using a combination of assignment of metadata to user-provided input, metadata-preserving string operations and context-sensitive string evaluation. CSSE requires neither application developer interaction nor application source code modifications. Since only changes to the underlying platform are needed, it effectively shifts the burden of implementing countermeasures against injection attacks from the many application developers to the small team of security-savvy platform developers. Our method is effective against most types of injection attacks, and we show that it is also less error-prone than other solutions proposed so far. We have developed a prototype CSSE implementation for PHP, a platform that is particularly prone to these vulnerabilities. We used our prototype with phpBB, a well-known bulletin-board application, to validate our method. CSSE detected and prevented all the SQL injection attacks we could reproduce and incurred only reasonable run-time overhead.},
+author = {Pietraszek, Tadeusz and Berghe, Chris Vanden},
+doi = {10.1007/11663812_7},
+file = {:Users/jacek/Dysk Google/Studia/S3MGR/Software Engineering of Embedded Systems/Saluki/Papers/pietraszek05{\_}defending.pdf:pdf},
+isbn = {3540317783},
+issn = {03029743},
+journal = {Lecture Notes in Computer Science (including subseries Lecture Notes in Artificial Intelligence and Lecture Notes in Bioinformatics)},
+keywords = {Injection attacks,Internal sensors,Intrusion prevention,PHP,Web applications},
+pages = {124--145},
+title = {{Defending against injection attacks through context-sensitive string evaluation}},
+volume = {3858 LNCS},
+year = {2006}
+}
+
+@INPROCEEDINGS{sdtaint, 
+author={D. Balzarotti and M. Cova and V. Felmetsger and N. Jovanovic and E. Kirda and C. Kruegel and G. Vigna}, 
+booktitle={2008 IEEE Symposium on Security and Privacy (sp 2008)}, 
+title={Saner: Composing Static and Dynamic Analysis to Validate Sanitization in Web Applications}, 
+year={2008}, 
+volume={}, 
+number={}, 
+pages={387-401}, 
+keywords={Internet;program diagnostics;program verification;security of data;software reliability;Saner tool;static analysis technique;dynamic analysis technique;sanitization validation;Web applications;faulty sanitization procedures;vulnerability analysis;Protection;Programming profession;Performance analysis;Databases;Data privacy;Data security;Fault diagnosis;Electronic mail;Portals;Time to market}, 
+doi={10.1109/SP.2008.22}, 
+ISSN={1081-6011}, 
+month={May},}
+
+@article{BAP,
+abstract = {BAP is a publicly available infrastructure for performing program verification and analysis tasks on binary (i.e., executable) code. In this paper, we describe BAP as well as lessons learned from previous in-carnations of binary analysis platforms. BAP explicitly represents all side effects of instructions in an intermediate language (IL), making syntax-directed analysis possible. We have used BAP to routinely generate and solve verification conditions that are hundreds of megabytes in size and encompass 100,000's of assembly instructions.},
+author = {Brumley, David and Schwartz, Edward J},
+file = {:Users/jacek/Dysk Google/Studia/S3MGR/Software Engineering of Embedded Systems/Saluki/Papers/BAP- A Binary Analysis Platform.pdf:pdf},
+journal = {Computer aided verification},
+keywords = {David Brumley},
+pages = {463--469},
+title = {{BAP : A Binary Analysis Platform 3 Simple Lines}},
+year = {2011}
+}
+
+@INPROCEEDINGS{taint2, 
+author={J. Kim and T. Kim and E. G. Im}, 
+booktitle={2014 4th IEEE International Conference on Network Infrastructure and Digital Content}, 
+title={Survey of dynamic taint analysis}, 
+year={2014}, 
+volume={}, 
+number={}, 
+pages={269-272}, 
+keywords={data flow analysis;security of data;system monitoring;dynamic taint analysis;execution paths;attacker;executable files;information flow tracing;generalized tainting infrastructure;taint marking;taint propagation;taint source;propagation policies;taint sink;DYTAN;DTA++;control dependency;data transformation;Software;Instruments;Performance analysis;Accuracy;Testing;Computer security;dynamic taint analysis}, 
+doi={10.1109/ICNIDC.2014.7000307}, 
+ISSN={2374-0272}, 
+month={Sep.},}
+
+
+
