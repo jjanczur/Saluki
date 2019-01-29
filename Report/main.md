@@ -1,16 +1,23 @@
-# Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
-Author: Jacek Janczura
-
-Abstract
-============
-
-**This report explains the architecture and Saluki's idea for checking
+---
+abstract: |
+    **This report explains the architecture and Saluki's idea for checking
     taint-style (data dependent) security properties in a binary code.
     Saluki is a new tool which is capable of finding a large number of
     CWS[^1] vulnerabilities in real programs. Saluki uses a mixture of
     static and dynamic taint analysis to follow data dependent facts. Saluki
     is proved to be capable of finding vulnerabilities in COTS[^2] including
     0-days.**
+author:
+- |
+    Jacek Janczura\
+    404975, Software Engineering of Embedded Systems, Technische
+    Universitaet Berlin, janczura.jacek\@gmail.com
+bibliography: 'sample.bib'
+csl: 'ieee.csl'
+title: |
+    **Report on Saluki: Finding Taint-style Vulnerabilities with Static
+    Property Checking**
+---
 
 INTRODUCTION
 ============
@@ -81,7 +88,7 @@ reference="fig:CFG"}.
 ![Sample Control Flow Graph.\
 Dashed arrows represent intraprocedural edges, while dotted arrows
 represent interprocedural edges. Functions are summarized as ellipses
-($f$) [@CFG] []{label="fig:CFG"}](Report/images/CFG2.png){#fig:CFG width="60%"}
+($f$) [@CFG] []{label="fig:CFG"}](CFG2.png){#fig:CFG width="60%"}
 
 Taint-style Vulnerabilities
 ===========================
@@ -121,7 +128,7 @@ Taint analysis is divided into three steps:\
     means that received data may be leaked away.\
 
 ![Visualisation of taint
-analysis[]{label="fig:taint"}](Report/images/Taint.png){#fig:taint width="90%"}
+analysis[]{label="fig:taint"}](Taint.png){#fig:taint width="90%"}
 
 Dynamic taint-style analysis
 ----------------------------
@@ -181,7 +188,7 @@ all of the possible bugs will be caught. [@a5][@a6]
 ![Visualisation of over and under approximation.\
 A - a set of all the possible states of a binary, UA - an under
 approximation of A, OA - an over approximation of A [@a3]
-[]{label="fig:approximation"}](Report/images/approximation.png){#fig:approximation
+[]{label="fig:approximation"}](approximation.png){#fig:approximation
 width="80%"}
 
 Saluki Architecture
@@ -227,7 +234,7 @@ reference="fig:saluki"}. [@saluki] :
     the tainted instructions and a flow ID.
 
 ![Saluki Architecture
-[@saluki][]{label="fig:saluki"}](Report/images/saluki.png){#fig:saluki width="85%"}
+[@saluki][]{label="fig:saluki"}](saluki.png){#fig:saluki width="85%"}
 
 *Specification:* The first step of running Saluki is loading the
 vulnerabilities specification. Saluki has already implemented a database
