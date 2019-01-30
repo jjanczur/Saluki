@@ -283,18 +283,28 @@ $\mu$flux stops execution when:
 
 \section{Results and tests}
 
-Saluki research group tested Saluki on many binaries in order to check its performance. No only did they find two binaries where srand seed was time dependent and 6 new zero-days bugs in 5 COTS products, but they even discovered Heartbleed in OpenSSL. Unfortunately in the same library Saluki showed 4 false positive alerts.
+Saluki research group tested Saluki on many binaries in order to check its performance. No only did they find two binaries where srand seed was time dependent Fig. \ref{fig:bug} and 6 new zero-days bugs in 5 COTS products, but they even discovered Heartbleed in OpenSSL. Unfortunately in the same library Saluki showed 4 false positive alerts.
 In Lighthttp Saluki research team found command injection to system, buffer overflow due to wrong usage of strcpy. Apart from OpenSSL and Lighthttp they found 3 SQL injections in some COTOS products and many more.
 
 
 This experiments shows that Saluki may be useful but the user needs to be aware that a false-positives may occur and that is why it is crucial to check every alert. 
 
+\begin{figure}[h]
+    \centering
+    \captionsetup{justification=centering}
+    \includegraphics[width=0.85\textwidth]{bug.png}
+    \caption{An example of srand time dependance in cisco admin.cg1\\
+    \small{https://bst.cloudapps.cisco.com/bugsearch/bug/CSCuy68380}}
+    \label{fig:bug}
+\end{figure}
+
+
 
 \section{Conclusions}
 
-Saluki is not sound nor complete. Its main advantage is that in comparison to other tools used to find vulnerabilities it is extremely fast. Unfortunately the authors of Saluki did not benchmark it against other tools which I think is a big drawback of the paper. 
+Saluki is neither sound nor complete, so it kind of takes the worst of two words. The main purpose of Saluki is finding bugs, not proving their absence additionally Saluki in comparison to other tools used to find vulnerabilities it is extremely fast. Unfortunately the authors of Saluki did not benchmark it against other tools which I think is a big drawback of the paper. 
 
-Sadly Saluki is not further developed and after publication the paper \cite{saluki} there are no new commits in a Saluki's github repository. 
+Sadly Saluki is not further developed and after publication the paper \cite{saluki} there are no new commits in a Saluki's github repository, as it has been superseded by the new Primus Taint Engine\footnote{https://gitter.im/BinaryAnalysisPlatform/bap-plugins}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
