@@ -22,7 +22,7 @@
 %\usepackage{amssymb}  % assumes amsmath package installed
 
 \title{\LARGE \bf
-Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
+Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
 }
 \author{Jacek Janczura \\ \small{404975, Software Engineering of Embedded Systems, Technische Universitaet Berlin, {\tt janczura.jacek@gmail.com}}}%
 
@@ -39,7 +39,7 @@ Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Check
 \usepackage{fancyhdr}
 \fancyhf{}
 \rhead{Jacek Janczura}
-\lhead{Report on Saluki: Finding Taint-style Vulnerabilities }
+\lhead{Saluki: Finding Taint-style Vulnerabilities }
 \rfoot{Page \thepage}
 \setlength{\headheight}{14pt}
 
@@ -60,7 +60,7 @@ Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Check
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{abstract}
-\textbf{This report explains the architecture and Saluki's idea for checking taint-style (data dependent) security properties in a binary code. Saluki is a new tool which is capable of finding a large number of CWS\footnote{CWS- Common Weakness Enumeration - list of software weakness types \cite{a2}} vulnerabilities in real programs. Saluki uses a mixture of static and dynamic taint analysis to follow data dependent facts. Saluki is proved to be capable of finding vulnerabilities in COTS\footnote{ COTS - Commercial off-the-shelf -  products are packaged solutions which are then adapted to satisfy the needs of the purchasing organization \cite{a1}} including 0-days.}
+\textbf{Saluki is a tool for checking taint-style (data-dependent) security properties in a binary code. Saluki is a new tool that is capable of finding a large number of CWS\footnote{CWS- Common Weakness Enumeration - list of software weakness types \cite{a2}} vulnerabilities in real programs. Saluki uses a mixture of static and dynamic taint analysis to follow data-dependent facts. Saluki is proved to be capable of finding vulnerabilities in COTS\footnote{ COTS - Commercial off-the-shelf -  products are packaged solutions which are then adapted to satisfy the needs of the purchasing organization \cite{a1}} including 0-days.}
 
 \end{abstract}
 
@@ -68,14 +68,14 @@ Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Check
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{INTRODUCTION}
 
-Recently vendors continue to ship vulnerable programs. Unfortunately to protect their "know how" and intellectual property, source code is not shipped, which is a big issue. Modern compilers and run-time libraries have introduced significant complexities to a binary code, which negatively affect the capabilities of binary analysis tool kits to analyze binary code. \cite{binaries} To cope with analysing modern binary files, a data flow analysis is used for an accurate detection of a wide range of attacks on a shipped software, including those based on memory corruption, format-string bugs, command or SQL injection, cross-site scripting, and so on.(\cite{a7}, \cite{Pietraszek2006})
+Recently vendors continue to ship vulnerable programs. Unfortunately, to protect their "know-how" and intellectual property, source code is not shipped, which is a big issue. Modern compilers and run-time libraries have introduced significant complexities to a binary code, which negatively affect the capabilities of binary analysis tool kits to analyze binary code. \cite{binaries} To cope with analyzing modern binary files, a data flow analysis is used for accurate detection of a wide range of attacks on a shipped software, including those based on memory corruption, format-string bugs, command or SQL injection, cross-site scripting, etc.(\cite{a7}, \cite{Pietraszek2006})
 
 An example of data flow analysis used for finding such vulnerabilities is a taint analysis. The main goal of taint analysis is to identify data flows from attacker-controlled sources to security-sensitive sinks that do not undergo sanitization.\cite{a5} \cite{a6}
-There are two types of taint analysis, dynamic and static. \cite{sdtaint} Dynamic requires run time support and can achieve low coverage, both of which can result in missed vulnerabilities. Static analysis, promises to reason about entire functions or whole programs at once by abstracting program state. As a result, static analysis tends to miss fewer problems, but can suffer high false positives if not done with care and is extremely time consuming. \cite{saluki} 
+There are two types of taint analysis, dynamic and static. \cite{sdtaint} Dynamic requires run time support and can achieve low coverage, both of which can result in missed vulnerabilities. Static analysis, promises to reason about entire functions or whole programs at once by abstracting program state. As a result, static analysis tends to miss fewer problems but can suffer high false positives if not done with care and is extremely time-consuming. \cite{saluki} 
 
-The solution for that problems is Saluki. This new tool, introduced by a research group from the Carnegie Mellon University, proposes the third approach - mixed taint analysis based on random execution. This type of data flow taint analysis is much faster than the conventional static approach and finds much more vulnerabilities than dynamic analysis.\cite{saluki} 
+The solution for those problems is Saluki. This new tool, introduced by a research group from the Carnegie Mellon University, proposes the third approach - mixed taint analysis based on random execution. This type of data flow taint analysis is much faster than the conventional static approach and finds much more vulnerabilities than dynamic analysis.\cite{saluki} 
 
-In this report after after introducing some basic concepts, we will focus on the Saluki's architecture, steps of its execution, some real life results and tests conducted using vulnerable binaries.
+In this paper after introducing some basic concepts, we will focus on Saluki's architecture, steps of its execution, some real-life results, and tests conducted using vulnerable binaries.
 \pagebreak
 %\section{Theoretical introduction}
 
@@ -91,7 +91,7 @@ A CFG is defined to be a directed graph, consisting of vertices that represent b
     \item $ T : E \rightarrow \{intraprocedural, interprocedural\} $ assigns a label to an edge.
 
 \end{itemize}
-The basic blocks $B$ are defined in a conventional way. Each basic block $ b =< i_0, i_1, . . . , i_n > $ is a consecutive instruction sequence with $i_0$ being the only entry and in being the only exit. The sink node $v\perp$ is used to represent unknown control flows, mainly caused by indirect jumps and indirect calls.\cite{CFG2} An example of such graph is depicted in a Fig. \ref{fig:CFG}.
+The basic blocks $B$ are defined conventionally. Each basic block $ b =< i_0, i_1, . . . , i_n > $ is a consecutive instruction sequence with $i_0$ being the only entry and in being the only exit. The sink node $v\perp$ is used to represent unknown control flows, mainly caused by indirect jumps and indirect calls.\cite{CFG2} An example of such graph is depicted in a Fig. \ref{fig:CFG}.
 
 \begin{figure}[ht]
     \centering
@@ -128,18 +128,18 @@ The basic blocks $B$ are defined in a conventional way. Each basic block $ b =< 
 \section{Taint-style Vulnerabilities}
 
 
-The term taint-style vulnerabilities has its roots in taint analysis, a technique for tracing  propagation of data through a program.\cite{a6} Taint analysis is based on the observation that in order for an attacker to change the execution of a program illegitimately, attacker must cause a value that is normally derived from a trusted source to instead be derived from his own input. We refer to data that originates or is derived arithmetically from an untrusted input as being tainted. \cite{taint2}
+The term taint-style vulnerabilities have its roots in taint analysis, a technique for tracing the propagation of data through a program.\cite{a6} Taint analysis is based on the observation that in order for an attacker to change the execution of a program illegitimately, the attacker must cause a value that is normally derived from a trusted source to instead be derived from his own input. We refer to data that originates or is derived arithmetically from an untrusted input as being tainted. \cite{taint2}
 
 Taint analysis can be used for example to check if the data received to a socket by the function $receive()$ and saved in some buffer does not leak. It means that it is not sent away by the function $send()$.
 
-In an example shown in a Fig. \ref{fig:taint}, functions and buffers that cannot be dependent one to another need to be specified. Any data saved by $receive(*buf_a)$ can not be sent away by $send(*buf_b)$. 
+In an example shown in a Fig. \ref{fig:taint}, functions and buffers that cannot be dependent on one another need to be specified. Any data saved by $receive(*buf_a)$ can not be sent away by $send(*buf_b)$. 
 \\
 
-Taint analysis is divided into three steps:\\
+Taint analysis divides into three steps:\\
 \begin{itemize}
-\item \textbf{Seeding} - during seeding all the $receive()$ functions need to be find in the CFG. Than the memory cells, where the received data is saved, need to be tainted. Each tainted memory cell has its index number for tracing the leakage path and taint flag. Taint flag informs if that specific memory cell has been already tainted or not.\\
+\item \textbf{Seeding} - during seeding all the $receive()$ functions need to be find in the CFG. Then the memory cells, where the received data is saved, need to be tainted. Each tainted memory cell has its index number for tracing the leakage path and taint flag. Taint flag informs if that specific memory cell has been already tainted or not.\\
 \item \textbf{Propagation} - taint propagation resembles spreading of a virus. In propagation step all the paths in CFG from $receive(*buf_a)$ to $send(*buf_b)$ are traversed and each used memory cell is tainted.\\
-\item \textbf{Checking} - during checking each one of the memory cells in $buf_b$ is examined for the taint. Presence of the taint in $buf_b$ means that received data may be leaked away.\\
+\item \textbf{Checking} - while checking each memory cell in $buf_b$ is examined for the taint. The presence of the taint in $buf_b$ means that received data may be leaked away.\\
 \end{itemize}
 
 \begin{figure}[ht]
@@ -153,7 +153,7 @@ Taint analysis is divided into three steps:\\
 \subsection{Dynamic taint-style analysis}
 
 In dynamic taint analysis, we first mark input data from un-trusted sources tainted, then monitor program execution to track how the tainted attribute propagates and to check when tainted data is used in dangerous ways. \cite{taint2}
-Since dynamic analysis is done in a run time, by running the binary and following execution taint, for each different input whole program needs to be rerun from the beginning. In consequence to check all the possible states thus cover all the possible bugs the computational complexity of such approach will be extremely high and a scalability of it will be really poor. That is why in dynamic analysis only subset of the possible inputs is used to emulate working program. Therefore taint analysis is an example of an under approximation Fig.\ref{fig:approximation} and can not cover all of the possible vulnerabilities. \cite{a6}\cite{a7}
+Since dynamic analysis is done in a run time, by running the binary and following execution taint, for each different input whole program needs to be rerun from the beginning. In consequence to check all the possible states thus cover all the possible bugs the computational complexity of such an approach will be extremely high and scalability of it will be poor. That is why in the dynamic analysis only a subset of the possible inputs is used to emulate the working program. Therefore taint analysis is an example of an under approximation Fig.\ref{fig:approximation} and can not cover all of the possible vulnerabilities. \cite{a6}\cite{a7}
 
 \begin{itemize}
 \item Pros:	
@@ -174,8 +174,8 @@ Since dynamic analysis is done in a run time, by running the binary and followin
 
 \subsection{Static taint-style analysis}
 
-Although static analysis examines all code paths, it has weakness of a high execution time. Due to it's content independency, static analysis  is possible to examine dead code that actually can not be executed in a run time. Consequently static taint-style analysis is an example of over approximation Fig.\ref{fig:approximation}.
-Due to the large number of an external unreachable by the program in the run time states, in the static analysis we observe a large number of false positives. On the other hand all the states reachable by the program are the subset of the states reached by static analysis. It means that among many false positives, all of the possible bugs will be caught. \cite{a5}\cite{a6}
+Although static analysis examines all code paths, it has a weakness of a high execution time. Due to its content independence, static analysis is possible to examine dead code that actually can not be executed in a run time. Consequently, static taint-style analysis is an example of over-approximation Fig.\ref{fig:approximation}.
+Due to a large number of external unreachable by the program in the run time states, in the static analysis, we observe a large number of false positives. On the other hand, all the states reachable by the program are the subset of the states reached by static analysis. It means that among many false positives, all of the possible bugs will be caught. \cite{a5}\cite{a6}
 
 \begin{itemize}
 \item Pros:	
@@ -207,13 +207,13 @@ Due to the large number of an external unreachable by the program in the run tim
 
 \section{Saluki Architecture}
 
-Saluki creators came up with a new and novel approach. Instead of under approximating the states in a run time or statically slowly over approximating all the possible inputs and impossible states, in case of Saluki - random parts of code are executed. 
+Saluki creators came up with a new and novel approach. Instead of under approximating the states in a run time or statically slowly over approximating all the possible inputs and impossible states, in the case of Saluki - random parts of code are executed. 
 
-In a seeding part all instructions and policies that a user wants to check are being found in a control flow graph and tainted. Then in a propagation part, plugin called $\mu$flux executes random parts of the CFG supplying the random input and goes down the graph. 
+In a seeding part, all instructions and policies that a user wants to check are being found in a control flow graph and tainted. Then in a propagation part, a plugin called $\mu$flux executes random parts of the CFG supplying the random input and goes down the graph. 
 
-Thanks to $\mu$flux and executing random parts of CFG, Saluki does not need to start every time from the beginning as it is in dynamic analysis. Additionally randomisation of an execution point, lets Saluki go as far as it is statistically possible in CFG, where in dynamic analysis going that deep entail extreme rise in the computational complexity. 
+Thanks to $\mu$flux and executing random parts of CFG, Saluki does not need to start every time from the beginning as it is in dynamic analysis. Additionally, randomization of an execution point, lets Saluki go as far as it is statistically possible in CFG, wherein dynamic analysis going that deep entails an extreme rise in the computational complexity. 
 
-On the other hand randomisation of the input makes Saluki achieve a normally unreachable states like in over approximation. That is why the states approximation of Saluki is the mixed one.\cite{a4}
+On the other hand randomization of the input makes Saluki achieve normally unreachable states like in over-approximation. That is why the state approximation of Saluki is the mixed one.\cite{a4}
 \\
 
 Saluki's execution can be divided into five steps.
@@ -235,7 +235,7 @@ Its overall architecture is shown in a Fig. \ref{fig:saluki}.  \cite{saluki} :
     \label{fig:saluki}
 \end{figure}
 
-\textit{Specification: } The first step of running Saluki is loading the vulnerabilities specification. Saluki has already implemented a database - CWE\footnote{CWE - community-developed list of common software security weaknesses} with dozens of vulnerabilities. Additionally user can load customised, user-defined policies using the Saluki's language.\\
+\textit{Specification: } The first step of running Saluki is loading the vulnerabilities specification. Saluki has already implemented a database - CWE\footnote{CWE - community-developed list of common software security weaknesses} with dozens of vulnerabilities. Additionally, the user can load customized, user-defined policies using Saluki's language.\\
 
 %\belowcaptionskip=-10pt
 
@@ -245,16 +245,16 @@ Its overall architecture is shown in a Fig. \ref{fig:saluki}.  \cite{saluki} :
     s.t. cmd/buf
 \end{lstlisting}
 
-In the Listing 1, there is shown a policy in Saluki language for finding a command injection. 
+In Listing 1, there is shown a policy in Saluki language for finding a command injection. 
 
 Command injection vulnerabilities arise when input flows from an input source to a sink function that executes code. 
 
-In this case system should never use data from recv (data received from the socket). Otherwise we can assume that a command in a system shell was executed - system used data from the socket. 
+In this case, the system should never use data from recv (data received from the socket). Otherwise, we can assume that command in a system shell was executed - a system used data from the socket. 
 
-The only limitation is that Saluki does not specifically reason about memory corruption vulnerabilities such as buffer overflows.
+The only limitation is that Saluki does not a specific reason for memory corruption vulnerabilities such as buffer overflows.
 \bigskip
 
-\textit{Binary processing:} The binary is loaded to the Saluki. Than Saluki runs a BAP\footnote{BAP - BinaryAnalysisPlatform - https://github.com/BinaryAnalysisPlatform/} (BinaryAnalysisPlatform) an open-source plugin-based binary analysis framework. Deriving a CFG from a binary is a difficult problem on its own right. The design of these algorithms is a challenge due to the presence of both indirect control flow that cannot be statically analyzed and data inter- mixed with code.\cite{CFG} To that purpose Saluki uses BAP recursive-traversal parser, that follows statically determinable control flow to discover as much code as possible, and makes use of backwards slicing and heuristic techniques to identify the targets of indirect jumps (e.g., jump tables) and functions that are only reached via indirect calls. (\cite{a8}, \cite{BAP})
+\textit{Binary processing:} The binary is loaded to the Saluki. Than Saluki runs a BAP\footnote{BAP - BinaryAnalysisPlatform - https://github.com/BinaryAnalysisPlatform/} (BinaryAnalysisPlatform) an open-source plugin-based binary analysis framework. Deriving a CFG from a binary is a difficult problem in its own right. The design of these algorithms is a challenge due to the presence of both indirect control flow that cannot be statically analyzed and data inter-mixed with code.\cite{CFG} To that purpose Saluki uses BAP recursive-traversal parser, that follows statically determinable control flow to discover as much code as possible, and makes use of backward slicing and heuristic techniques to identify the targets of indirect jumps (e.g., jump tables) and functions that are only reached via indirect calls. (\cite{a8}, \cite{BAP})
 \\
 
 \textit{Taint Seeding:} Saluki analyzes the specification for variables used in constraints. Each constraint variable is linked to
@@ -266,7 +266,7 @@ As is customary, Saluki uses unique identifiers to identify each
 taint seed.\cite{saluki}
 \bigskip
 
-\textit{$\mu$flux:} $\mu$flux is implemented as a custom interpreter that runs random parts of CFG and propagates the taint across the memory. $\mu$flux starts taint propagation from the instructions picked from specification and marked during the seeding. Than it executes parts of CFG randomly. $\mu$flux explores the paths regardless of the branch predicate and ignores context of data.
+\textit{$\mu$flux:} $\mu$flux is implemented as a custom interpreter that runs random parts of CFG and propagates the taint across the memory. $\mu$flux starts taint propagation from the instructions picked from specification and marked during the seeding. Then it executes parts of CFG randomly. $\mu$flux explores the paths regardless of the branch predicate and ignores the context of data.
 \medskip
 
 $\mu$flux stops execution when:
@@ -277,17 +277,17 @@ $\mu$flux stops execution when:
 \end{itemize}
 
 \bigskip
-\textit{The Saluki Solver:} In this step Saluki starts to follow the taint and tries to prove all properties specified in a policy. Saluki is constructive: it does not just show that there is a violation, but gives the specific path and data dependencies used to show the property can be violated.
+\textit{The Saluki Solver:} In this step Saluki starts to follow the taint and tries to prove all properties specified in a policy. Saluki is constructive: it does not just show that there is a violation but gives the specific path and data dependencies used to show the property can be violated.
 
 
 
 \section{Results and tests}
 
-Saluki research group tested Saluki on many binaries in order to check its performance. No only did they find two binaries where srand seed was time dependent Fig. \ref{fig:bug} and 6 new zero-days bugs in 5 COTS products, but they even discovered Heartbleed in OpenSSL. Unfortunately in the same library Saluki showed 4 false positive alerts.
-In Lighthttp Saluki research team found command injection to system, buffer overflow due to wrong usage of strcpy. Apart from OpenSSL and Lighthttp they found 3 SQL injections in some COTOS products and many more.
+Saluki's research group tested Saluki on many binaries in order to check its performance. Not only did they find two binaries where srand seed was time-dependent Fig. \ref{fig:bug} and 6 new zero-days bugs in 5 COTS products, but they even discovered Heartbleed in OpenSSL. Unfortunately in the same library, Saluki showed 4 false-positive alerts.
+In Lighthttp Saluki research team found command injection to the system, buffer overflow due to the wrong usage of strcpy. Apart from OpenSSL and Lighthttp they found 3 SQL injections in some COTS products and many more.
 
 
-This experiments shows that Saluki may be useful but the user needs to be aware that a false-positives may occur and that is why it is crucial to check every alert. 
+This experiment shows that Saluki may be useful but the user needs to be aware that a false-positives may occur and that is why it is crucial to check every alert. 
 
 \begin{figure}[h]
     \centering
@@ -302,9 +302,10 @@ This experiments shows that Saluki may be useful but the user needs to be aware 
 
 \section{Conclusions}
 
-Saluki is neither sound nor complete, so it kind of takes the worst of two words. The main purpose of Saluki is finding bugs, not proving their absence additionally Saluki in comparison to other tools used to find vulnerabilities it is extremely fast. Unfortunately the authors of Saluki did not benchmark it against other tools which I think is a big drawback of the paper. 
+Saluki is neither sound nor complete, so it kind of takes the worst of two worlds. The main purpose of Saluki is finding bugs, not proving their absence. Additionally Saluki in comparison to other tools used to find vulnerabilities it is extremely fast. Unfortunately, the authors of Saluki benchmarked it neither against other static nor dynamic tools which I think is a big drawback of the paper. Especially benchmarking at least coverage and speed would be very interesting.  
 
-Sadly Saluki is not further developed and after publication the paper \cite{saluki} there are no new commits in a Saluki's github repository, as it has been superseded by the new Primus Taint Engine\footnote{https://gitter.im/BinaryAnalysisPlatform/bap-plugins}. 
+
+Sadly Saluki is not further developed and after the publication of the paper \cite{saluki} there are no new commits in Saluki's GitHub repository, as it has been superseded by the new Primus Taint Engine\footnote{https://gitter.im/BinaryAnalysisPlatform/bap-plugins}. 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage

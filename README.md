@@ -1,11 +1,10 @@
-# Report on Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
+#Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
 Author: Jacek Janczura
 
 Abstract
 ============
 
-**This report explains the architecture and Saluki's idea for checking
-    taint-style (data dependent) security properties in a binary code.
+**Saluki is a framework for checking taint-style (data dependent) security properties in a binary code.
     Saluki is a new tool which is capable of finding a large number of
     CWS[^1] vulnerabilities in real programs. Saluki uses a mixture of
     static and dynamic taint analysis to follow data dependent facts. Saluki
