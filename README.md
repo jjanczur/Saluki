@@ -1,4 +1,4 @@
-#Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
+# Saluki: Finding Taint-style Vulnerabilities with Static Property Checking
 Author: Jacek Janczura
 
 Abstract
